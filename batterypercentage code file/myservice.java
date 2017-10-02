@@ -1,6 +1,5 @@
 package com.example.r_k.intentservicebatterypercentage;
 
-import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.Service;
 import android.content.BroadcastReceiver;
@@ -29,20 +28,34 @@ public class myservice extends Service{
     NotificationCompat.Builder notificationCompat;
     NotificationManager manager;
     Bitmap bm;
-    Notification notification;
     IntentFilter battchagefiter;
 
+    //start the service
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        //load battery icon as notification banner( center right of notification )
         bm = BitmapFactory.decodeResource(getResources(), R.drawable.battery);
+
+        //declare intentfilter for action like battery changed,screen on,screen off etc.
+
         battchagefiter = new IntentFilter(intent.ACTION_BATTERY_CHANGED);
         IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_ON);
+        //add intent action as per needed for app.
         filter.addAction(Intent.ACTION_SCREEN_OFF);
-        // register our receiver .
-        this.registerReceiver(this.batterychangeReceiver, battchagefiter);
-//            return super.onStartCommand(intent, flags, startId);
-        return START_NOT_STICKY;
 
+        // register our receiver .
+        registerReceiver(this.batterychangeReceiver, battchagefiter);
+
+        return super.onStartCommand(intent, flags, startId);
+
+
+    }
+
+    @Override
+    public void onDestroy() {
+        //  remove/unregister our broadcast receiver.
+        unregisterReceiver(batterychangeReceiver);
+        super.onDestroy();
     }
 
     @Nullable
@@ -50,20 +63,28 @@ public class myservice extends Service{
     public IBinder onBind(Intent intent) {
         return null;
     }
-    private myservice myservice;
-    private final BroadcastReceiver batterychangeReceiver = new BroadcastReceiver(){
-        @Override
 
+    //create broadcast receiver object and implement it's abstract method call ' onReceive() ' .
+    BroadcastReceiver batterychangeReceiver = new BroadcastReceiver(){
+        @Override
         public void onReceive(Context context, Intent intent) {
+            //call custom method for constantly running update battery percentage and update notification .
             checkbatteryLevel(intent);
+
         }
+
         private void checkbatteryLevel(Intent batteryChangeIntent) {
 
+            //get current battery level.
             final int currentlevel = batteryChangeIntent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+            //get maximum battery level
             final int maxLevel = batteryChangeIntent.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
 
+            //calculate actual percentage based on current battery level and maximum battery level.
             final int percentage = (int) Math.round(currentlevel * 100.0 / maxLevel);
 
+            //use switch to know what is current percentage .
+            //after that notify user as non-cancellable notification.
             switch (percentage) {
                 case 1:
                     notificationCompat = (NotificationCompat.Builder) new NotificationCompat.Builder(getApplicationContext())
@@ -1172,6 +1193,8 @@ public class myservice extends Service{
                             .setOngoing(true);
                     manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
                     manager.notify(0, notificationCompat.build());
+                    break;
+                default:
                     break;
             }
 
