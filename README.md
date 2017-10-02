@@ -4,3 +4,5 @@ in this repo i put project code for enabling/showing battery percentage on statu
 
 
 ![Demo Screenshot](https://github.com/rk215/BatteryPercentageEnable-App-for-Android-/blob/master/Screenshot_20170927-162615.png)
+
+![Layout screenshot](https://github.com/rk215/BatteryPercentageEnable-Android-app/blob/master/Screenshot_20171002-161114%5B1%5D.png)
